@@ -1,3 +1,4 @@
+from wsgiref.validate import validator
 from flask import Flask, render_template
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
@@ -10,6 +11,10 @@ app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
 Bootstrap(app)
 
 
+class CafeForm(FlaskForm):
+    cafe = StringField("Cafe Name", validators=[DataRequired()])
+    submit = SubmitField("Submit")
+
 
 @app.route("/")
 def home():
@@ -18,7 +23,11 @@ def home():
 
 @app.route('/add')
 def add_cafe():
-    pass
+    form = FlaskForm()
+    if form.validate_on_submit():
+        print("True")
+
+    return render_template("add.html", form=form)
 
 
 @app.route('/cafes')
