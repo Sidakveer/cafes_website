@@ -1,9 +1,9 @@
 from wsgiref.validate import validator
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect, url_for
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField
-from wtforms.validators import DataRequired
+from wtforms import StringField, SubmitField, SelectField
+from wtforms.validators import DataRequired, URL
 import csv
 
 app = Flask(__name__)
@@ -12,9 +12,14 @@ Bootstrap(app)
 
 
 class CafeForm(FlaskForm):
-    cafe = StringField("Cafe Name", validators=[DataRequired()])
-    submit = SubmitField("Submit")
-
+    cafe = StringField('Cafe name', validators=[DataRequired()])
+    location = StringField("Cafe Location on Google Maps {URL}", validators=[URL(), DataRequired()])
+    opening = StringField("Opening Time", validators=[DataRequired()])
+    closing = StringField("Closing Time", validators=[DataRequired()])
+    coffee = SelectField("Coffee Rating", choices=["✘", "☕", "☕☕", "☕☕☕", "☕☕☕☕", "☕☕☕☕☕"], validators=[DataRequired()])
+    wifi = SelectField("WIFI Strength Rating", choices=["✘", "💪", "💪💪", "💪💪💪", "💪💪💪💪", "💪💪💪💪💪"], validators=[DataRequired()])
+    socket = SelectField("Power Socket Availability", choices=["✘", "💪", "💪💪", "💪💪💪", "💪💪💪💪", "💪💪💪💪💪"], validators=[DataRequired()])
+    submit = SubmitField('Submit')
 
 @app.route("/")
 def home():
@@ -23,22 +28,25 @@ def home():
 
 @app.route('/add')
 def add_cafe():
-    form = FlaskForm()
+    form = CafeForm()
     if form.validate_on_submit():
-        print("True")
+        with open("cafe-data.csv", "a") as file:
+            file.write(f"\n{form.cafe.data},{form.location.data},{form.opening.data},{form.closing.data},"
+                       f"{form.coffee.data},"
+                       f"{form.wifi.data},{form.socket.data}")
+        return redirect(url_for('cafes'))
 
-    return render_template("add.html", form=form)
+    return render_template('add.html', form=form)
 
 
 @app.route('/cafes')
 def cafes():
-    with open("cafe-data.csv", newline="", encoding="utf-8") as csv_file:
+    with open('cafe-data.csv', newline='') as csv_file:
         csv_data = csv.reader(csv_file, delimiter=',')
         list_of_rows = []
         for row in csv_data:
             list_of_rows.append(row)
-    return render_template("cafes.html", cafes=list_of_rows)
-
+    return render_template('cafes.html', cafes=list_of_rows)
 
 
 if __name__ == '__main__':
