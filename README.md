@@ -20,7 +20,7 @@
 <br>
 
 ### **>** Our (/cafes) route shows the users with a list of previously added cafes with all its details so they can select the one they are interested in visiting via the help of the maps link provided.
-<img src="images/cafes.png" width=1200 height=500>
+<img src="images/cafes.png" width=1200 height=400>
 
 <br>
 
